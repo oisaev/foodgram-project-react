@@ -1,3 +1,11 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import User, Subscription
+
+
+class UserAdmin(admin.ModelAdmin):
+    list_filter = ('email', 'username')
+
+
+admin.site.register(User)
+admin.site.register(Subscription)
