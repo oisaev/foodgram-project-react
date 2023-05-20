@@ -2,10 +2,12 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-COPY ./requirements.txt ./
+COPY ./ ./
+
+RUN python3 -m pip install --upgrade pip
 
 RUN pip3 install -r ./requirements.txt --no-cache-dir
 
-COPY ./ ./
+RUN python3 manage.py collectstatic --no-input
 
-CMD ["python3", "manage.py", "runserver", "0:8000"]
+CMD ["gunicorn", "backend.wsgi:application", "--bind", "0:8000"]
