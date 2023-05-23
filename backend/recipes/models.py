@@ -5,60 +5,85 @@ from users.models import User
 
 
 class Ingredient(models.Model):
-    """Ингредиенты."""
+    """Модель ингредиентов."""
     name = models.CharField(
-        max_length=200
+        max_length=200,
+        verbose_name='название ингредиента'
     )
     measurement_unit = models.CharField(
-        max_length=200
+        max_length=200,
+        verbose_name='единица измерения ингредиента'
     )
 
+    class Meta:
+        verbose_name = 'ингредиент'
+        verbose_name_plural = 'нигредиенты'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'measurement_unit'],
+                name='unique_name_measurement_unit'
+            )
+        ]
+
     def __str__(self):
-        return f'{self.name} in {self.measurement_unit}'
+        return f'{self.name} в {self.measurement_unit}'
 
 
 class Tag(models.Model):
-    """Тэги."""
+    """Модель тегов."""
     name = models.CharField(
-        max_length=200
+        max_length=200,
+        unique=True,
+        verbose_name='название тега'
     )
     color = models.CharField(
         max_length=7,
-        null=True,
-        blank=True
+        unique=True,
+        verbose_name='цвет тега'
     )
     slug = models.SlugField(
         max_length=200,
         unique=True,
-        verbose_name='Слаг тэга'
+        verbose_name='slug тега'
     )
+
+    class Meta:
+        verbose_name = 'тег'
+        verbose_name_plural = 'теги'
+
+    def __str__(self):
+        return self.name
 
 
 class Recipe(models.Model):
-    """Рецепты."""
+    """Модель рецептов."""
     tags = models.ManyToManyField(
         Tag,
-        through='RecipeToTag'
+        through='RecipeToTag',
+        verbose_name='теги рецепта'
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Автор рецепта'
+        related_name='recipe',
+        verbose_name='автор рецепта'
     )
     ingredients = models.ManyToManyField(
         Ingredient,
-        through='RecipeToIngredient'
+        through='RecipeToIngredient',
+        verbose_name='ингредиенты рецепта'
     )
     name = models.CharField(
         max_length=200,
-        verbose_name='Название рецепта'
+        unique=True,
+        verbose_name='название рецепта'
     )
     image = models.ImageField(
         upload_to='images/',
-        verbose_name='Фотография блюда'
+        verbose_name='фотография блюда'
     )
     text = models.TextField(
-        verbose_name='Описание рецепта'
+        verbose_name='описание рецепта'
     )
     cooking_time = models.IntegerField(
         validators=[
@@ -67,85 +92,113 @@ class Recipe(models.Model):
                 message='Время приготовления должно быть не менее 1 минуты'
             )
         ],
-        verbose_name='Время приготовления (в минутах)'
+        verbose_name='время приготовления (в минутах)'
     )
+
+    class Meta:
+        verbose_name = 'рецепт'
+        verbose_name_plural = 'рецепты'
+
+    def __str__(self):
+        return self.name
 
 
 class RecipeToTag(models.Model):
-    """Связь рецепта и тэгов."""
+    """Модель связи рецепта и тегов."""
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        verbose_name='Ссылка на рецепт'
+        verbose_name='ссылка на рецепт'
     )
     tag = models.ForeignKey(
         Tag,
         on_delete=models.CASCADE,
-        verbose_name='Ссылка на тэг'
+        verbose_name='ссылка на тег'
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'tag'],
+                name='unique_recipe_tag'
+            )
+        ]
 
 
 class RecipeToIngredient(models.Model):
-    """Связь рецепта и ингредиентов."""
+    """Модель связь рецепта и ингредиентов."""
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        verbose_name='Ссылка на рецепт'
+        verbose_name='ссылка на рецепт'
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        verbose_name='Ссылка на ингредиент'
+        verbose_name='ссылка на ингредиент'
+    )
+    quantity = models.IntegerField(
+        validators=[
+            MinValueValidator(
+                1,
+                message='Количество не может быть меньше 1'
+            )
+        ],
+        verbose_name='количество ингредиента в рецепте'
     )
 
 
-class Purchases(models.Model):
+class ShopingList(models.Model):
+    """Модель листа покупок."""
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Покупатель'
+        verbose_name='покупатель'
     )
     reсipes = models.ManyToManyField(
         Recipe,
-        through='PurchaseToRecipes',
-        verbose_name='Покупки'
+        through='ShopingListToRecipe',
+        verbose_name='покупки'
     )
 
 
-class PurchaseToRecipes(models.Model):
+class ShopingListToRecipe(models.Model):
+    """Модель связи листа покупок и рецептов."""
     purchase = models.ForeignKey(
-        Purchases,
+        ShopingList,
         on_delete=models.CASCADE,
-        verbose_name='Ссылка на покупку'
+        verbose_name='ссылка на покупку'
     )
     reсipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        verbose_name='Ссылка на рецепт'
+        verbose_name='ссылка на рецепт'
     )
 
 
 class Favorites(models.Model):
+    """Модель избранных рецептов."""
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Пользователь'
+        verbose_name='пользователь'
     )
     favorites = models.ManyToManyField(
         Recipe,
-        through='FavoriteToRecipes',
-        verbose_name='Покупки'
+        through='FavoriteToRecipe',
+        verbose_name='покупки'
     )
 
 
-class FavoriteToRecipes(models.Model):
+class FavoriteToRecipe(models.Model):
+    """Модель связи избранных рецептов с рецептами."""
     favorite = models.ForeignKey(
         Favorites,
         on_delete=models.CASCADE,
-        verbose_name='Ссылка на покупку'
+        verbose_name='ссылка на покупку'
     )
     reсipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        verbose_name='Ссылка на рецепт'
+        verbose_name='ссылка на рецепт'
     )
