@@ -35,13 +35,13 @@ class User(AbstractUser):
 
 class Subscription(models.Model):
     """Модель подписок."""
-    user = models.ForeignKey(
+    subscriber = models.ForeignKey(
         User,
         related_name='subscriber',
         on_delete=models.CASCADE,
         verbose_name='пользователь, который подписывается',
     )
-    subscribed_to = models.ForeignKey(
+    subscribed = models.ForeignKey(
         User,
         related_name='subscribed',
         on_delete=models.CASCADE,
@@ -51,11 +51,14 @@ class Subscription(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'subscribed_to'],
-                name='unique_user_subscribed_to'
+                fields=['subscriber', 'subscribed'],
+                name='shouldnt_subscribe_twice'
             ),
             models.CheckConstraint(
-                check=~models.Q(user=models.F("subscribed_to")),
+                check=~models.Q(subscriber=models.F("subscribed")),
                 name='shouldnt_subscribe_yourself'
             ),
         ]
+
+    def __str__(self):
+        return f' Подписка {self.subscriber} на {self.subscribed}'

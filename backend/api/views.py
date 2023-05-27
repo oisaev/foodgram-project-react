@@ -1,9 +1,36 @@
+from django.contrib.auth import get_user_model
+from djoser.views import UserViewSet
 from rest_framework import filters, permissions, viewsets
+from rest_framework.decorators import action
 
 from recipes.models import Ingredient, Recipe, Tag
-from .serializers import (IngredientSerializer,
+from users.models import Subscription
+from .helpers import subscribe, unsubscribe
+from .serializers import (SubscriptionSerializer,
+                          UserSerializer,
+                          IngredientSerializer,
                           RecipeSerializer,
                           TagSerializer)
+
+User = get_user_model()
+
+
+class CustomUserViewSet(UserViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    @action(methods=['get'], detail=False)
+    def subscriptions(self, request):
+        queryset = Subscription.objects.filter(user=request.user)
+        datapage = self.paginate_queryset(queryset)
+        serialized_data = SubscriptionSerializer(datapage, many=True)
+        return self.get_paginated_response(self, serialized_data)
+
+    @action(methods=['post', 'delete'], detail=True)
+    def subscribe(self, request, id):
+        if request.method == 'POST':
+            return subscribe(request, id)
+        return unsubscribe(request, id)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
