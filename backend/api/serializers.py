@@ -1,13 +1,13 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from recipes.models import Ingredient, Recipe, Tag
+from recipes.models import Ingredient, Recipe, RecipeToIngredient, Tag
 from users.models import Subscription
 
 User = get_user_model()
 
 
-class UserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
     """Сериализатор модели пользователя."""
     is_subscribed = serializers.SerializerMethodField()
 
@@ -32,8 +32,8 @@ class UserSerializer(serializers.ModelSerializer):
         ).exists()
 
 
-class RecipesOfSubscriptionSerializer(serializers.ModelSerializer):
-    """Сериалайзер рецептов тех, на кого подписан."""
+class RecipeShortSerializer(serializers.ModelSerializer):
+    """Сериалайзер для неполного представления рецептов."""
 
     class Meta:
         model = Recipe
@@ -45,13 +45,13 @@ class RecipesOfSubscriptionSerializer(serializers.ModelSerializer):
         )
 
 
-class SubscriptionSerializer(UserSerializer):
+class SubscriptionSerializer(CustomUserSerializer):
     """Сериалайзер подписок."""
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
-        fields = UserSerializer.Meta.fields + (
+        fields = CustomUserSerializer.Meta.fields + (
             'recipes',
             'recipes_count'
         )
@@ -62,7 +62,7 @@ class SubscriptionSerializer(UserSerializer):
         recipes = obj.recipes.all()
         if recipes_limit:
             recipes = recipes[:int(recipes_limit)]
-        serialized = RecipesOfSubscriptionSerializer(
+        serialized = RecipeShortSerializer(
             recipes,
             many=True
         )
@@ -88,8 +88,28 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'measurement_unit')
 
 
-class RecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор модели рецепта."""
+class RecipeToIngredientSerializer(serializers.ModelSerializer):
+    """Сериализатор связи рецепта и ингредиентов."""
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit'
+    )
+
+    class Meta:
+        model = RecipeToIngredient
+        fields = (
+            'id',
+            'name',
+            'measurement_unit',
+            'amount'
+        )
+
+
+class RecipeReadSerializer(serializers.ModelSerializer):
+    """Сериализатор модели рецепта для чтения."""
+    tags = TagSerializer(many=True)
+    author = CustomUserSerializer()
 
     class Meta:
         model = Recipe
@@ -102,6 +122,21 @@ class RecipeSerializer(serializers.ModelSerializer):
             'is_in_shopping_cart',
             'name',
             'image',
+            'text',
+            'cooking_time'
+        )
+
+
+class RecipeWriteSerializer(serializers.ModelSerializer):
+    """Сериализатор модели рецепта для записи."""
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'ingredients',
+            'tags',
+            'image',
+            'name',
             'text',
             'cooking_time'
         )

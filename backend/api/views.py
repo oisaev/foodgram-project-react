@@ -7,9 +7,10 @@ from recipes.models import Ingredient, Recipe, Tag
 from users.models import Subscription
 from .helpers import subscribe, unsubscribe
 from .serializers import (SubscriptionSerializer,
-                          UserSerializer,
+                          CustomUserSerializer,
                           IngredientSerializer,
-                          RecipeSerializer,
+                          RecipeReadSerializer,
+                          RecipeWriteSerializer,
                           TagSerializer)
 
 User = get_user_model()
@@ -17,7 +18,7 @@ User = get_user_model()
 
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = CustomUserSerializer
 
     @action(methods=['get'], detail=False)
     def subscriptions(self, request):
@@ -53,4 +54,20 @@ class IngredientViewSet(viewsets.ModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
+    
+    def get_serializer_class(self):
+        if self.action in ('retrieve', 'list'):
+            return RecipeReadSerializer
+        return RecipeWriteSerializer
+
+    @action(methods=['get'], detail=False)
+    def download_shopping_cart(self, request):
+        pass
+
+    @action(methods=['post', 'delete'], detail=True)
+    def shopping_cart(self, request, id):
+        pass
+
+    @action(methods=['post', 'delete'], detail=True)
+    def favorite(self, request, id):
+        pass

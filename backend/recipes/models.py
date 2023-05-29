@@ -126,7 +126,7 @@ class RecipeToIngredient(models.Model):
         on_delete=models.CASCADE,
         verbose_name='ссылка на ингредиент'
     )
-    quantity = models.IntegerField(
+    amount = models.IntegerField(
         validators=[
             MinValueValidator(
                 1,
@@ -136,15 +136,19 @@ class RecipeToIngredient(models.Model):
         verbose_name='количество ингредиента в рецепте'
     )
 
+    class Meta:
+        verbose_name = 'связь рецепта и ингредиентов'
+        verbose_name_plural = 'связи рецепта и ингредиентов'
 
-class ShoppingList(models.Model):
-    """Модель листа покупок."""
+
+class ShoppingCart(models.Model):
+    """Модель списка покупок."""
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         verbose_name='покупатель'
     )
-    reсipe = models.ForeignKey(
+    recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
         verbose_name='рецепт для покупки'
@@ -171,7 +175,7 @@ class Favorite(models.Model):
         on_delete=models.CASCADE,
         verbose_name='пользователь'
     )
-    reсipe = models.ForeignKey(
+    recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
         verbose_name='избранный рецепт'

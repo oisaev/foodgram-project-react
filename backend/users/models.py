@@ -22,6 +22,8 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     class Meta:
+        verbose_name = 'пользователь'
+        verbose_name_plural = 'пользователи'
         constraints = [
             models.CheckConstraint(
                 check=~models.Q(username__exact='me'),
@@ -49,6 +51,8 @@ class Subscription(models.Model):
     )
 
     class Meta:
+        verbose_name = 'подписка'
+        verbose_name_plural = 'подписки'
         constraints = [
             models.UniqueConstraint(
                 fields=['subscriber', 'subscribed'],

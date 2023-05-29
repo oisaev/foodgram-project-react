@@ -10,6 +10,7 @@ User = get_user_model()
 
 
 def subscribe(request, subscribed_id):
+    """Функция подписки на автора рецептов."""
     subscribed = get_object_or_404(User, id=subscribed_id)
     if subscribed == request.user:
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -28,6 +29,7 @@ def subscribe(request, subscribed_id):
 
 
 def unsubscribe(request, subscribed_id):
+    """Функция отписки от автора рецептов."""
     subscribed = get_object_or_404(User, id=subscribed_id)
     instance = Subscription.objects.filter(
         subscriber=request.user,
