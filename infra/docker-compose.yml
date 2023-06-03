@@ -1,6 +1,12 @@
 version: '3.8'
 services:
 
+  db:
+    image: postgres:15.3-alpine
+    restart: always
+    volumes:
+      - /var/lib/postgresql/data/
+
   backend:
     build:
       context: ../backend
@@ -11,6 +17,8 @@ services:
       - media_volume:/app/media/
     ports:
       - "8000:8000"
+    depends_on:
+      - db
     container_name: foodgram_backend
 
   frontend:
