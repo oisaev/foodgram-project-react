@@ -6,3 +6,5 @@ django-filter==23.2
 djoser==2.2.0
 Pillow==9.5.0
 gunicorn==20.1.0
+psycopg2-binary==2.9.6
+python-dotenv==1.0.0

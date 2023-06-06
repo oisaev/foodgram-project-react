@@ -26,6 +26,7 @@ class Tag(models.Model):
     class Meta:
         verbose_name = 'тег'
         verbose_name_plural = 'теги'
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
@@ -119,11 +120,13 @@ class RecipeToIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
+        related_name='recipetoingredient',
         verbose_name='ссылка на рецепт'
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
+        related_name='recipetoingredient',
         verbose_name='ссылка на ингредиент'
     )
     amount = models.IntegerField(
@@ -139,6 +142,13 @@ class RecipeToIngredient(models.Model):
     class Meta:
         verbose_name = 'связь рецепта и ингредиентов'
         verbose_name_plural = 'связи рецепта и ингредиентов'
+
+    def __str__(self):
+        return (
+            f'{self.ingredient.name}'
+            f' {self.amount} {self.ingredient.measurement_unit}'
+            f' в рецепте {self.recipe.name}'
+        )
 
 
 class ShoppingCart(models.Model):

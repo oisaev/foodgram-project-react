@@ -11,6 +11,7 @@ from recipes.models import (Favorite,
                             ShoppingCart,
                             Tag)
 from users.models import Subscription
+from .filters import RecipeFilter
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (CustomUserSerializer,
                           IngredientSerializer,
@@ -64,6 +65,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для рецептов."""
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthorOrReadOnly, )
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.action in ('retrieve', 'list'):

@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 
-from recipes.models import Recipe, RecipeToIngredient
+from recipes.models import Recipe
 from users.models import Subscription
 from .serializers import SubscriptionSerializer
 
@@ -13,7 +13,7 @@ User = get_user_model()
 
 def subscribe_and_unsubscribe(request, subscribed_id):
     """Функция подписки и отписки на/от автора рецептов."""
-    subscribed = get_object_or_404(User, id=subscribed_id)
+    subscribed = get_object_or_404(User, pk=subscribed_id)
     instance = Subscription.objects.filter(
         subscriber=request.user,
         subscribed=subscribed
@@ -32,16 +32,6 @@ def subscribe_and_unsubscribe(request, subscribed_id):
         ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     return Response(status=status.HTTP_400_BAD_REQUEST)
-
-
-def create_ingredients(ingredients, recipe):
-    """Функция для добавления ингредиентов в рецепт."""
-    for ingredient in ingredients:
-        RecipeToIngredient.objects.get_or_create(
-            recipe=recipe,
-            ingredient=ingredient['id'],
-            amount=ingredient['amount']
-        )
 
 
 def download_shopping_list(ingredients):
@@ -64,7 +54,7 @@ def add_or_del_recipe_to_favorite_or_shopping_cart(
 ):
     """Функция добавления и удаление рецепта
     в/из избранное или список покупок."""
-    recipe = get_object_or_404(Recipe, id=recepe_id)
+    recipe = get_object_or_404(Recipe, pk=recepe_id)
     instance = model.objects.filter(
         user=request.user,
         recipe=recipe
