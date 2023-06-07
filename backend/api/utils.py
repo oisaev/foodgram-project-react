@@ -6,29 +6,33 @@ from rest_framework.response import Response
 
 from recipes.models import Recipe
 from users.models import Subscription
-from .serializers import SubscriptionSerializer
+
+from .serializers import RecipeShortSerializer, SubscriptionListSerializer
 
 User = get_user_model()
 
 
-def subscribe_and_unsubscribe(request, subscribed_id):
+def subscribe_and_unsubscribe(request, author_id):
     """Функция подписки и отписки на/от автора рецептов."""
-    subscribed = get_object_or_404(User, pk=subscribed_id)
+    user = request.user
+    author = get_object_or_404(User, id=author_id)
     instance = Subscription.objects.filter(
-        subscriber=request.user,
-        subscribed=subscribed
+        user=user,
+        author=author
     )
+
     if request.method == 'POST' and not instance.exists():
-        subscription = Subscription.objects.create(
-            subscriber=request.user,
-            subscribed=subscribed
+        serializer = SubscriptionListSerializer(
+            author,
+            context={'request': request}
         )
-        serialized = SubscriptionSerializer(subscription)
-        return Response(serialized.data, status=status.HTTP_201_CREATED)
+        Subscription.objects.create(user=user, author=author)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     if request.method == 'DELETE' and instance.exists():
         Subscription.objects.filter(
-            subscriber=request.user,
-            subscribed=subscribed
+            user=request.user,
+            author=author
         ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -64,8 +68,8 @@ def add_or_del_recipe_to_favorite_or_shopping_cart(
             recipe=recipe,
             user=request.user
         )
-        serializer = Recipe(recipe)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serialized = RecipeShortSerializer(recipe)
+        return Response(serialized.data, status=status.HTTP_201_CREATED)
     if request.method == 'DELETE' and instance.exists():
         model.objects.filter(
             user=request.user,

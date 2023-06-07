@@ -1,28 +1,19 @@
-from django.db.models import Sum
 from django.contrib.auth import get_user_model
+from django.db.models import Sum
 from djoser.views import UserViewSet
-from rest_framework import filters, permissions, viewsets
+from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 
-from recipes.models import (Favorite,
-                            Ingredient,
-                            Recipe,
-                            RecipeToIngredient,
-                            ShoppingCart,
-                            Tag)
-from users.models import Subscription
-from .filters import RecipeFilter
-from .permissions import IsAuthorOrReadOnly
-from .serializers import (CustomUserSerializer,
-                          IngredientSerializer,
-                          RecipeReadSerializer,
-                          RecipeWriteSerializer,
-                          SubscriptionSerializer,
-                          TagSerializer)
-from .utils import (add_or_del_recipe_to_favorite_or_shopping_cart,
-                    download_shopping_list,
-                    subscribe_and_unsubscribe)
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeToIngredient,
+                            ShoppingCart, Tag)
 
+from .filters import IngredientFilter, RecipeFilter
+from .permissions import IsAuthorOrReadOnly
+from .serializers import (CustomUserSerializer, IngredientSerializer,
+                          RecipeReadSerializer, RecipeWriteSerializer,
+                          SubscriptionListSerializer, TagSerializer)
+from .utils import (add_or_del_recipe_to_favorite_or_shopping_cart,
+                    download_shopping_list, subscribe_and_unsubscribe)
 
 User = get_user_model()
 
@@ -33,10 +24,14 @@ class CustomUserViewSet(UserViewSet):
 
     @action(methods=['get'], detail=False)
     def subscriptions(self, request):
-        queryset = Subscription.objects.filter(user=request.user)
-        datapage = self.paginate_queryset(queryset)
-        serialized_data = SubscriptionSerializer(datapage, many=True)
-        return self.get_paginated_response(self, serialized_data)
+        queryset = User.objects.filter(subscribed__user=request.user)
+        page_data = self.paginate_queryset(queryset)
+        serialized = SubscriptionListSerializer(
+            page_data,
+            many=True,
+            context={'request': request}
+        )
+        return self.get_paginated_response(serialized.data)
 
     @action(methods=['post', 'delete'], detail=True)
     def subscribe(self, request, id):
@@ -48,7 +43,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
@@ -56,8 +51,8 @@ class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
-    permission_classes = (permissions.AllowAny,)
-    filter_backends = (filters.SearchFilter,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    filter_backends = (IngredientFilter, )
     search_fields = ('^name',)
 
 
@@ -83,13 +78,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return download_shopping_list(ingredients)
 
     @action(methods=['post', 'delete'], detail=True)
-    def shopping_cart(self, request, id):
+    def shopping_cart(self, request, pk):
         return add_or_del_recipe_to_favorite_or_shopping_cart(
-            ShoppingCart, request, id
+            ShoppingCart, request, pk
         )
 
     @action(methods=['post', 'delete'], detail=True)
-    def favorite(self, request, id):
+    def favorite(self, request, pk):
         return add_or_del_recipe_to_favorite_or_shopping_cart(
-            Favorite, request, id
+            Favorite, request, pk
         )
