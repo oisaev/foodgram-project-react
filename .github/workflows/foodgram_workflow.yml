@@ -57,7 +57,7 @@ jobs:
         name: Push to Docker Hub Foodgram frontend
         uses: docker/build-push-action@v4
         with:
-          file: api_yamdb/Dockerfile
+          file: frontend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
 
@@ -65,7 +65,7 @@ jobs:
         name: Push to Docker Hub Foodgram backend
         uses: docker/build-push-action@v4
         with:
-          file: api_yamdb/Dockerfile
+          file: backend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
 
