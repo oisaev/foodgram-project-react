@@ -120,13 +120,13 @@ class RecipeToIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipetoingredient',
+        related_name='recipe_to_ingredient',
         verbose_name='ссылка на рецепт'
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='recipetoingredient',
+        related_name='recipe_to_ingredient',
         verbose_name='ссылка на ингредиент'
     )
     amount = models.IntegerField(
@@ -142,6 +142,12 @@ class RecipeToIngredient(models.Model):
     class Meta:
         verbose_name = 'связь рецепта и ингредиентов'
         verbose_name_plural = 'связи рецепта и ингредиентов'
+        constraints = [
+            models.UniqueConstraint(
+                fields=('recipe', 'ingredient'),
+                name='unique_recipe_ingredient'
+            )
+        ]
 
     def __str__(self):
         return (

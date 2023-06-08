@@ -73,7 +73,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit'
-        ).annotate(amount=Sum('amount'))
+        ).annotate(total_amount=Sum('amount'))
         return download_shopping_list(ingredients)
 
     @action(methods=['post', 'delete'], detail=True)

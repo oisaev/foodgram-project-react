@@ -136,7 +136,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer()
     ingredients = RecipeToIngredientSerializer(
         many=True,
-        source='recipetoingredient'
+        source='recipe_to_ingredient'
     )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
@@ -159,10 +159,6 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     def get_image(self, obj):
         return obj.image.url
-
-    def get_ingredients(self, obj):
-        ingredients = RecipeToIngredient.objects.filter(recipe=obj)
-        return RecipeToIngredientSerializer(ingredients, many=True).data
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')
@@ -237,12 +233,16 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     @staticmethod
     def create_ingredients(ingredients, recipe):
         """Функция для добавления ингредиентов в рецепт."""
+        ingredients_to_add = []
         for current_ingredient in ingredients:
-            RecipeToIngredient.objects.create(
-                ingredient=current_ingredient.get('id'),
-                amount=current_ingredient.get('amount'),
-                recipe=recipe,
+            ingredients_to_add.append(
+                RecipeToIngredient(
+                    ingredient=current_ingredient.get('id'),
+                    amount=current_ingredient.get('amount'),
+                    recipe=recipe,
+                )
             )
+        RecipeToIngredient.objects.bulk_create(ingredients_to_add)
 
     def create(self, validated_data):
         request = self.context.get('request')
