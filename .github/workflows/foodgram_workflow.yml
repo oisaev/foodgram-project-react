@@ -1,6 +1,6 @@
 name: foodgram_workflow
 
-on: push
+on: [push, workflow_dispatch]
 
 jobs:
 
@@ -28,7 +28,7 @@ jobs:
           pip install -r backend/requirements.txt 
 
       - 
-        name: Test flake8 and django tests
+        name: Test flake8
         run: python -m flake8
 
   build_and_push_to_docker_hub:
