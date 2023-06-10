@@ -10,17 +10,16 @@
 
 «Продуктовый помощник»: сайт, на котором пользователи будут публиковать рецепты, добавлять чужие рецепты в избранное и подписываться на публикации других авторов. Сервис «Список покупок» позволит пользователям создавать список продуктов, которые нужно купить для приготовления выбранных блюд.
 
-### Адреса
+### Адрес проекта
 ```
-- http://practicum.isaev.es/
-- http://158.160.21.95/
+http://practicum.isaev.es/
 ```
 
-### Административная учетная запись
+### Интерфейс администратора
 ```
-- login: admin
-- password: admin
-- email: admin@admin.admin
+http://practicum.isaev.es/admin/
+email: admin@admin.admin
+password: admin
 ```
 
 ### Технологии
@@ -51,9 +50,11 @@ docker-compose up -d --build
 Зайти в контейнер backend'а:
 ```
 В Windows:
-- winpty docker exec -it foodgram_backend bash
+winpty docker exec -it foodgram_backend bash
+```
+```
 В Linux:
-- docker exec -it foodgram_backend bash
+docker exec -it foodgram_backend bash
 ```
 Выполнить миграции:
 ```
