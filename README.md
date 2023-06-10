@@ -6,8 +6,8 @@
 ![workflow](https://github.com/oisaev/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
 
 ### Адреса:
-http://practicum.isaev.es/
-http://158.160.21.95/
+- http://practicum.isaev.es/
+- http://158.160.21.95/
 
 
 
