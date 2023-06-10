@@ -177,8 +177,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     """Сериализатор модели рецепта для записи."""
     author = CustomUserSerializer(read_only=True)
     ingredients = RecipeToIngredientSerializer(
-        many=True,
-        source='recipe_to_ingredient'
+        many=True
     )
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
