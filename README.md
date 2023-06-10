@@ -18,6 +18,8 @@ http://practicum.isaev.es/
 ### Интерфейс администратора
 ```
 http://practicum.isaev.es/admin/
+```
+```
 email: admin@admin.admin
 password: admin
 ```
