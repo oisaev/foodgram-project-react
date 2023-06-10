@@ -3,7 +3,7 @@
 
 # Foodgram
 
-![workflow](https://github.com/oisaev/yamdb_final/actions/workflows/foodgram_workflow.yml/badge.svg)
+![workflow](https://github.com/oisaev/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
 
 ### Адреса:
 http://practicum.isaev.es/
