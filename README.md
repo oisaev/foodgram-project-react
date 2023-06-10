@@ -5,16 +5,23 @@
 
 ![workflow](https://github.com/oisaev/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
 
-### Адреса:
-- http://practicum.isaev.es/
-- http://158.160.21.95/
-
-
-
 ### Описание
 Учебный проект Яндекс Практикум.
 
 «Продуктовый помощник»: сайт, на котором пользователи будут публиковать рецепты, добавлять чужие рецепты в избранное и подписываться на публикации других авторов. Сервис «Список покупок» позволит пользователям создавать список продуктов, которые нужно купить для приготовления выбранных блюд.
+
+### Адреса
+```
+- http://practicum.isaev.es/
+- http://158.160.21.95/
+```
+
+### Административная учетная запись
+```
+- login: admin
+- password: admin
+- email: admin@admin.admin
+```
 
 ### Технологии
 - Python 3.9
@@ -43,7 +50,10 @@ docker-compose up -d --build
 ```
 Зайти в контейнер backend'а:
 ```
-winpty docker exec -it foodgram_backend bash
+В Windows:
+- winpty docker exec -it foodgram_backend bash
+В Linux:
+- docker exec -it foodgram_backend bash
 ```
 Выполнить миграции:
 ```
