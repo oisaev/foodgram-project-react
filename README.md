@@ -21,6 +21,7 @@ git clone git@github.com:oisaev/foodgram-project-react.git
 Перед развертыванием проекта необходимо в директории **infra** создать и заполнить **.env** файл по следующему шаблону:
 ```
 SECRET_KEY='p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs' # секретный ключ Django (установите свой)
+DEBUG=False # режим отладки Django
 DB_ENGINE=django.db.backends.postgresql # указываем, что работаем с postgresql
 DB_NAME=postgres # имя базы данных
 POSTGRES_USER=postgres # логин для подключения к базе данных
