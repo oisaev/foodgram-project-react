@@ -115,28 +115,36 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'measurement_unit')
 
 
-class RecipeToIngredientSerializer(serializers.ModelSerializer):
-    """Сериализатор связи рецепта и ингредиентов."""
-    id = serializers.PrimaryKeyRelatedField(
-        queryset=Ingredient.objects.all()
-    )
+class RecipeToIngredientReadSerializer(serializers.ModelSerializer):
+    """Сериализатор чтения связи рецепта и ингредиентов."""
+    id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
+    )
+
+    class Meta:
+        model = RecipeToIngredient
+        fields = ('id', 'name', 'measurement_unit', 'amount')
+
+
+class RecipeToIngredientWriteSerializer(serializers.ModelSerializer):
+    """Сериализатор записи связи рецепта и ингредиентов."""
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all()
     )
     amount = serializers.IntegerField()
 
     class Meta:
         model = RecipeToIngredient
-        # fields = ('id', 'amount')
-        fields = ('id', 'name', 'measurement_unit', 'amount')
+        fields = ('id', 'amount')
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
     """Сериализатор модели рецепта для чтения."""
     tags = TagSerializer(many=True)
     author = CustomUserSerializer()
-    ingredients = RecipeToIngredientSerializer(
+    ingredients = RecipeToIngredientReadSerializer(
         many=True,
         source='recipe_to_ingredient'
     )
@@ -178,7 +186,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 class RecipeWriteSerializer(serializers.ModelSerializer):
     """Сериализатор модели рецепта для записи."""
     author = CustomUserSerializer(read_only=True)
-    ingredients = RecipeToIngredientSerializer(
+    ingredients = RecipeToIngredientWriteSerializer(
         many=True
     )
     tags = serializers.PrimaryKeyRelatedField(
