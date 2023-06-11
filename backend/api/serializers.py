@@ -118,16 +118,17 @@ class IngredientSerializer(serializers.ModelSerializer):
 class RecipeToIngredientSerializer(serializers.ModelSerializer):
     """Сериализатор связи рецепта и ингредиентов."""
     id = serializers.PrimaryKeyRelatedField(
-        queryset=Ingredient.objects.all(),
-        source='ingredient'
+        queryset=Ingredient.objects.all()
     )
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
     )
+    amount = serializers.IntegerField()
 
     class Meta:
         model = RecipeToIngredient
+        # fields = ('id', 'amount')
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
@@ -235,7 +236,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def create_ingredients(ingredients, recipe):
-        """Функция для добавления ингредиентов в рецепт."""
+        """Метод для добавления ингредиентов в рецепт."""
         ingredients_to_add = []
         for current_ingredient in ingredients:
             ingredients_to_add.append(
@@ -257,11 +258,12 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
+        RecipeToIngredient.objects.filter(recipe=instance).delete()
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         instance.ingredients.clear()
         instance.tags.clear()
-        self.create_ingredients(ingredients=ingredients, recipe=instance)
+        self.create_ingredients(ingredients, instance)
         instance.tags.set(tags)
         return super().update(instance, validated_data)
 
