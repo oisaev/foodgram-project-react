@@ -21,6 +21,7 @@ User = get_user_model()
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
+    pagination_class = CustomPageNumberPagination
 
     @action(methods=['get'], detail=False)
     def subscriptions(self, request):
@@ -42,7 +43,6 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для просмотра тегов."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    pagination_class = None
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
@@ -50,7 +50,6 @@ class IngredientViewSet(viewsets.ModelViewSet):
     """Вьюсет для просмотра ингредиентов."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    pagination_class = None
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     filter_backends = (IngredientFilter, )
     search_fields = ('^name',)
