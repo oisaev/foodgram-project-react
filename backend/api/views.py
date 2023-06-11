@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeToIngredient,
                             ShoppingCart, Tag)
 from .filters import IngredientFilter, RecipeFilter
+from .pagination import CustomPageNumberPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (CustomUserSerializer, IngredientSerializer,
                           RecipeReadSerializer, RecipeWriteSerializer,
@@ -60,6 +61,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthorOrReadOnly, )
     filterset_class = RecipeFilter
+    pagination_class = CustomPageNumberPagination
 
     def get_serializer_class(self):
         if self.action in ('retrieve', 'list'):
