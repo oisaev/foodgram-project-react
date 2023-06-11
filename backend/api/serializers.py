@@ -117,10 +117,10 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class RecipeToIngredientSerializer(serializers.ModelSerializer):
     """Сериализатор связи рецепта и ингредиентов."""
-    # id = serializers.PrimaryKeyRelatedField(
-    #     queryset=Ingredient.objects.all()
-    # )
-    id = serializers.IntegerField(source='ingredient.id')
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all(),
+        source='ingredient'
+    )
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
